@@ -2,10 +2,10 @@ from distutils.core import setup
 
 setup(
     name='python-wrike',
-    version='0.0.0',
+    version='0.1.0',
     packages=['wrike'],
-    url='',
-    license='',
+    url='https://github.com/adalekin/python-wrike.git',
+    license='MIT',
     author='Aleksey Dalekin',
     author_email='adalekin@gmail.com',
     description='',

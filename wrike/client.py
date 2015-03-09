@@ -15,9 +15,9 @@ class WrikeAPI(object):
     host = "www.wrike.com"
     base_path = "/api/v3"
     protocol = "https"
-    user_agent = "python-wrike 0.0.0"
+    user_agent = "python-wrike 0.1.0"
 
-    def __init__(self, client_id, client_secret, code=None, storage=MemoryStorage()):
+    def __init__(self, client_id, client_secret, code=None, access_token=None, storage=MemoryStorage()):
         self.oauth2 = OAuth2(
                 client_id=client_id,
                 client_secret=client_secret,
@@ -29,6 +29,9 @@ class WrikeAPI(object):
 
         if code:
             self._get_token(code=code)
+
+        if access_token:
+            self.storage.set(access_token=access_token, token_type="")
 
     def _get_token(self, code):
         response = self.oauth2.get_token(code, grant_type="authorization_code")
