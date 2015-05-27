@@ -13,7 +13,7 @@ class MemoryStorage(object):
     def get(self, *args):
         r = {}
         for a in args:
-            r[a] = self.data[a]
+            r[a] = self.data.get(a, None)
 
         if len(args) == 1:
             return r[args[0]]

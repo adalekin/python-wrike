@@ -1,5 +1,3 @@
-from wrike.exceptions import WrikeAPIError
-
 __author__ = 'adalekin'
 
 import datetime
@@ -7,13 +5,14 @@ import requests
 
 from wrike.bind import bind_method
 from wrike.storage import MemoryStorage
+from wrike.exceptions import WrikeAPIError
 
 from requests_oauth2 import OAuth2
 
 
 class WrikeAPI(object):
     host = "www.wrike.com"
-    base_path = "/api/v3"
+    base_path = "/api/v3/"
     protocol = "https"
     user_agent = "python-wrike 0.1.0"
 
@@ -27,11 +26,11 @@ class WrikeAPI(object):
                 token_url="oauth2/token")
         self.storage = storage
 
+        if access_token:
+            self.storage.set(access_token=access_token, token_type="bearer")
+
         if code:
             self._get_token(code=code)
-
-        if access_token:
-            self.storage.set(access_token=access_token, token_type="")
 
     def _get_token(self, code):
         response = self.oauth2.get_token(code, grant_type="authorization_code")
@@ -61,10 +60,20 @@ class WrikeAPI(object):
     @property
     def session(self):
         expire_at = self.storage.get("expire_at")
-        if datetime.datetime.utcnow() > expire_at:
+        if expire_at and datetime.datetime.utcnow() > expire_at:
             self._refresh_token()
 
         return requests.Session()
+
+    contacts = bind_method(
+        path="contacts",
+        method="GET",
+        accepts_parameters=["me", "metadata", "fields"])
+
+    account_contacts = bind_method(
+        path="accounts/{account_id}/contacts",
+        method="GET",
+        accepts_parameters=["me", "metadata", "fields"])
 
     accounts = bind_method(
         path="accounts",
@@ -75,3 +84,6 @@ class WrikeAPI(object):
         path="accounts/{account_id}/tasks",
         method="GET",
         accepts_parameters=["account_id", "metadata", "fields"])
+
+    def users(self):
+        return [e for e in self.contacts()["data"] if "role" in e["profiles"][0] and e["profiles"][0]["role"] == "User"]

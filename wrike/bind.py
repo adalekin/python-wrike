@@ -69,9 +69,9 @@ def bind_method(**config):
         def execute(self):
             # Use an authorization header after the request object being created
             if "headers" in self.parameters:
-                self.parameters["headers"]["Authorization"] = "{0} {0}".format(
+                self.parameters["headers"]["Authorization"] = "{0} {1}".format(
                     self.api.storage.get("token_type"),
-                    self.api.storage.get("access_token")),
+                    self.api.storage.get("access_token"))
 
             response = self.api.session.request(
                 method=self.method,
