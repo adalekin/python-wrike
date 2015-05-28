@@ -107,3 +107,4 @@ class WrikeAPI(object):
 
     def users(self):
         return [e for e in self.contacts()["data"] if "role" in e["profiles"][0] and e["profiles"][0]["role"] == "User"]
+
