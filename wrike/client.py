@@ -41,8 +41,8 @@ class WrikeAPI(object):
                                 response["error_description"])
 
 
-        if "expire" in response:
-            response["expire_at"] = datetime.datetime.utcnow() + datetime.timedelta(seconds=response["expire"])
+        if "expires_in" in response:
+            response["expire_at"] = datetime.datetime.utcnow() + datetime.timedelta(seconds=response["expires_in"])
 
         self.storage.set(**response)
         return response
@@ -50,6 +50,8 @@ class WrikeAPI(object):
     def _refresh_token(self):
         refresh_token = self.storage.get("refresh_token")
         response = self.oauth2.get_token('', grant_type="refresh_token", refresh_token=refresh_token)
+        if "expires_in" in response:
+            response["expire_at"] = datetime.datetime.utcnow() + datetime.timedelta(seconds=response["expires_in"])
         self.storage.set(**response)
         return response
 
@@ -84,6 +86,24 @@ class WrikeAPI(object):
         path="accounts/{account_id}/tasks",
         method="GET",
         accepts_parameters=["account_id", "metadata", "fields"])
+
+    account_folders = bind_method(
+        path="accounts/{account_id}/folders",
+        method="GET",
+        accepts_parameters=["account_id", "metadata", "fields"])
+
+    create_task = bind_method(
+        path="folders/{folder_id}/tasks",
+        method='POST',
+        accepts_parameters=[
+            "folder_id",
+            "title", "description", "status", "dates"])
+
+    create_timelog = bind_method(
+        path="tasks/{task_id}/timelogs",
+        method='POST',
+        accepts_parameters=[
+            "task_id", "comment", "hours", "trackedDate"])
 
     def users(self):
         return [e for e in self.contacts()["data"] if "role" in e["profiles"][0] and e["profiles"][0]["role"] == "User"]
