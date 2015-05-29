@@ -58,22 +58,23 @@ def bind_method(**config):
                 name = variable.strip('{}')
 
                 try:
-                    value = quote(self.parameters[name])
+                    value = quote(self.parameters['data'][name])
                 except KeyError:
                     raise Exception('No parameter value found for path variable: %s' % name)
-                del self.parameters[name]
+                del self.parameters['data'][name]
 
                 self.path = self.path.replace(variable, value)
             self.path = "{0}://{1}{2}{3}".format(self.api.protocol, self.api.host, self.api.base_path, self.path)
 
         def execute(self):
+            session = self.api.session
             # Use an authorization header after the request object being created
             if "headers" in self.parameters:
                 self.parameters["headers"]["Authorization"] = "{0} {1}".format(
                     self.api.storage.get("token_type"),
                     self.api.storage.get("access_token"))
 
-            response = self.api.session.request(
+            response = session.request(
                 method=self.method,
                 url=self.path,
                 **self.parameters)
